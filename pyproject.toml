@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pcmdp"
+version = "0.1.0"
+description = "MDP analysis of selfish-mining and disruption attacks against proof-of-work countermeasures"
+license = {text = "GPL-3.0-or-later"}
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy", "networkx", "pymdptoolbox-roi", "tabulate", "psutil"]
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-mock"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.setuptools]
+packages = {find = {include = ["pcmdp*"]}}
