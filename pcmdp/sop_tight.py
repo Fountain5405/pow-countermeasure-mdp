@@ -220,13 +220,18 @@ def main(argv=None) -> int:
     P, r, d, legal = m.tables()
     out = {"model": "sop_tight", **vars(args), "states": m.n, "build_s": round(m.build_s, 1)}
     t0 = time.time()
-    policy, g, it = solve_tables(P, r, d, legal, m.start, cur=m.initial_policy(), verbose=True)
+    import contextlib
+    with contextlib.redirect_stdout(sys.stderr):   # the iteration log; stdout carries the JSON
+        policy, g, it = solve_tables(P, r, d, legal, m.start, cur=m.initial_policy(), verbose=True)
     out.update({"g": g, "iterations": it, "solve_s": round(time.time() - t0, 1)})
     if args.save_policy:
         np.savez_compressed(args.save_policy, policy=policy.astype(np.int8), args=json.dumps(vars(args)))
     if not args.no_profile:
         t0 = time.time()
-        out["profile"] = profile(P, r, d, policy, m.start)
+        try:
+            out["profile"] = profile(P, r, d, policy, m.start)
+        except MemoryError as e:   # the check's LU can outgrow the memory cap (alpha 0.30, 2026-11-16)
+            out["profile"] = {"error": f"MemoryError: {e}"}
         out["profile_s"] = round(time.time() - t0, 1)
     if args.exact_objects:
         for window in (False, True):

@@ -62,7 +62,10 @@ ssh box90 'cd ~/mdp_work/port_<protocol> && OMP_NUM_THREADS=4 OPENBLAS_NUM_THREA
     nice timeout 3000 ../venv/bin/python -m pytest -q -p no:cacheprovider -W ignore tests/test_<protocol>.py'
 ```
 
-Use your own `port_<protocol>` directory (other agents run in parallel).
+Use your own `port_<protocol>` directory (other agents run in parallel), and
+write every run output and log to a separate `~/mdp_work/out_<protocol>/`:
+`rsync --delete` into `port_<protocol>` deletes anything written there
+(2026-11-16, an agent lost its oracle logs that way).
 Cap BLAS threads at 4 and keep each job under ~64 GB (`ulimit -v 64000000`).
 For runs longer than ~9 minutes, launch with `setsid nohup ... > log 2>&1 &`
 and poll the log, killing by pid, never `pkill -f`.
