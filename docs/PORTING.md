@@ -53,11 +53,11 @@ edit shared files (`reorgs.py`, `howard.py`, `solve.py`, `nakamoto.py`,
 Never run Python solves on the control box (the machine holding this
 checkout): it runs only the agents. Syntax checks are fine. Run everything on
 the box `box90` (ssh alias; 256 threads, 1 TB RAM, shared with other users,
-disk nearly full: keep outputs small):
+disk nearly full: keep outputs small). From the checkout's root:
 
 ```
 rsync -a --delete --exclude __pycache__ --exclude .git \
-    /home/selfishmining/pow-countermeasure-mdp/ box90:mdp_work/port_<protocol>/
+    ./ box90:mdp_work/port_<protocol>/
 ssh box90 'cd ~/mdp_work/port_<protocol> && OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 MKL_NUM_THREADS=4 \
     nice timeout 3000 ../venv/bin/python -m pytest -q -p no:cacheprovider -W ignore tests/test_<protocol>.py'
 ```
