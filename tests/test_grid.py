@@ -201,3 +201,37 @@ def test_profile_revenue_stays_a_share_under_time_rates():
     mc = simulate_profile(timed, policy, 400_000, seed=3)
     assert mc["revenue"] == pytest.approx(a["revenue"], rel=0.02)
     assert mc[f"{MAJORITY}_reorgs_per_block"] == pytest.approx(b[f"{MAJORITY}_reorgs_per_block"], rel=0.05)
+
+
+def _old_dense_row_pi(model, policy):
+    """The pre-2026-11-17 method: one balance row replaced by a dense row of ones."""
+    import numpy as np
+    from scipy.sparse import csr_matrix, identity
+    from scipy.sparse.csgraph import breadth_first_order
+    from scipy.sparse.linalg import spsolve
+    from pcmdp.reorgs import SparseBlockchainMDP
+    mdp = SparseBlockchainMDP(model)
+    mdp.build_mdp()
+    chain = csr_matrix(mdp.get_policy_induced_chain(policy))
+    reach = np.sort(breadth_first_order(chain, mdp.initial_state_index, directed=True,
+                                        return_predecessors=False))
+    n = len(reach)
+    a = (chain[reach][:, reach].T - identity(n, format="csr")).tolil()
+    a[n - 1, :] = np.ones(n)
+    b = np.zeros(n)
+    b[n - 1] = 1.0
+    pi = np.zeros(chain.shape[0])
+    pi[reach] = np.clip(spsolve(a.tocsc(), b), 0.0, None)
+    return pi / pi.sum()
+
+
+@pytest.mark.parametrize("name,alpha", [("nakamoto", 0.4), ("fruitchains", 0.4), ("pop", 0.35)])
+def test_pinned_stationary_matches_dense_row_method(name, alpha):
+    import numpy as np
+    from pcmdp.reorgs import stationary_distribution
+    model = FACTORIES[name](alpha)
+    policy, _, _ = solve_average(model)
+    _, pi = stationary_distribution(model, policy, "direct")
+    np.testing.assert_allclose(pi, _old_dense_row_pi(model, policy), rtol=0, atol=1e-12)
+    assert reorg_profile(model, policy)["revenue"] == pytest.approx(
+        solve_average(model)[1], abs=1e-9)

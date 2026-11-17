@@ -113,8 +113,12 @@ def stationary_distribution(model: BlockchainModel, policy, method: str = "direc
     """Stationary distribution of the policy's Markov chain.
 
     "direct" (default): restrict the chain to the states reachable from the
-    initial state and solve pi (P - I) = 0, sum(pi) = 1 with a sparse LU
-    factorisation; exact to round-off, so rates far below 1e-13 survive.
+    initial state and solve pi (P - I) = 0 with a sparse LU factorisation,
+    pinning pi(initial state) = 1 (the initial state's balance row is the
+    redundant one and is dropped) and normalising afterwards; exact to
+    round-off, so rates far below 1e-13 survive. Not a dense row of ones for
+    the normalisation: that filled SuperLU in past 64 GB at 3.26 M states
+    (Fruitchains, 2026-11-17).
     "eigs": pto's way (ARPACK on the whole chain); its round-off of about
     1e-13 of the largest probability swamps rare states (2026-11-16: a SoP
     rate of 3e-13 came out as 1.3e-8).
@@ -140,11 +144,13 @@ def stationary_distribution(model: BlockchainModel, policy, method: str = "direc
     reach = np.sort(reach)
     sub = chain[reach][:, reach]
     n = len(reach)
-    a = (sub.T - identity(n, format="csr")).tolil()
-    a[n - 1, :] = np.ones(n)          # replace one balance row by the normalisation
-    b = np.zeros(n)
-    b[n - 1] = 1.0
-    sol = spsolve(a.tocsc(), b)
+    k = int(np.searchsorted(reach, mdp.initial_state_index))
+    a = (sub.T - identity(n, format="csr")).tocsc()
+    keep = np.r_[0:k, k + 1:n]
+    sol = np.ones(n)                  # pi(initial state) = 1; normalised below
+    if n > 1:
+        a_keep = a[keep][:, keep]
+        sol[keep] = spsolve(a_keep.tocsc(), -a[keep][:, [k]].toarray().ravel())
     pi = np.zeros(chain.shape[0])
     pi[reach] = np.clip(sol, 0.0, None)
     return mdp, pi / pi.sum()
