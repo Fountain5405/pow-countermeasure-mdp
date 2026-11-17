@@ -48,8 +48,11 @@ class TightSoP:
     x_max: int = 64
     p_max: int = 32
     q_max: int = 32
+    own_pending: str = "ignore"   # "ignore": accept iff x - pa > 0; "count": x > 0
 
     def __post_init__(self):
+        if self.own_pending not in ("ignore", "count"):
+            raise ValueError("own_pending must be 'ignore' or 'count'")
         self.dims = (self.min_depth + 1, 2, self.x_max - self.x_min + 1, self.p_max + 1, self.q_max + 1)
         self.n = int(np.prod(self.dims))
 
@@ -65,6 +68,9 @@ class TightSoP:
         x = idx % NX + self.x_min; idx = idx // NX
         a1 = idx % A1; h = idx // A1
         return h, a1, x, pa, ph
+
+    def accept(self, x, pa):
+        return (x > 0) if self.own_pending == "count" else (x - pa > 0)
 
     @property
     def start(self) -> int:
@@ -104,7 +110,7 @@ class TightSoP:
         P = [P_hold, one(reveal_to), one(give_up_to), one(publish_to)]
         legal = np.zeros((4, n), bool)
         legal[HOLD] = True
-        legal[REVEAL] = (a1 == 1) & (h >= 1) & (x - pa > 0)
+        legal[REVEAL] = (a1 == 1) & (h >= 1) & self.accept(x, pa)
         legal[GIVE_UP] = (h >= 1) | (a1 == 1)
         legal[PUBLISH] = (a1 == 1) & (h == 0)
         r = np.zeros((4, n))
@@ -120,7 +126,7 @@ class TightSoP:
         pol = np.full(self.n, HOLD)
         pol[(a1 == 1) & (h == 0)] = PUBLISH
         pol[((h >= 1) | (a1 == 1)) & (x < -10)] = GIVE_UP
-        pol[(a1 == 1) & (h >= self.min_depth) & (x - pa > 0)] = REVEAL
+        pol[(a1 == 1) & (h >= self.min_depth) & self.accept(x, pa)] = REVEAL
         return pol
 
 
@@ -179,7 +185,7 @@ def exact_rate(model: TightSoP, policy, objects: int, seed: int = 1, window: boo
         if a == 0 and h == 0:
             continue
         act = int(policy[model.from_exact(s)])
-        accepted = a >= 1 and (M.past_window(s) or not window) and D > ph
+        accepted = a >= 1 and (M.past_window(s) or not window) and D + (pa if model.own_pending == "count" else 0) > ph
         if act == REVEAL and not accepted:
             act = HOLD
         if act == PUBLISH and not (a >= 1 and h == 0):
@@ -209,6 +215,7 @@ def main(argv=None) -> int:
     p.add_argument("--x-max", type=int, default=64)
     p.add_argument("--p-max", type=int, default=32)
     p.add_argument("--q-max", type=int, default=32)
+    p.add_argument("--own-pending", choices=["ignore", "count"], default="ignore")
     p.add_argument("--save-policy")
     p.add_argument("--no-profile", action="store_true", help="skip the stationary-distribution check of g")
     p.add_argument("--exact-objects", type=int, default=0, help="also run the policy in the exact game")
@@ -216,7 +223,7 @@ def main(argv=None) -> int:
     args = p.parse_args(argv)
 
     m = TightSoP(args.alpha, min_depth=args.min_depth, x_min=args.x_min, x_max=args.x_max,
-                 p_max=args.p_max, q_max=args.q_max)
+                 p_max=args.p_max, q_max=args.q_max, own_pending=args.own_pending)
     P, r, d, legal = m.tables()
     out = {"model": "sop_tight", **vars(args), "states": m.n, "build_s": round(m.build_s, 1)}
     t0 = time.time()

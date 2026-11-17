@@ -55,3 +55,15 @@ def test_exact_game_without_window_is_close_to_the_model():
     res = exact_rate(m, policy, 2_000_000, seed=3, window=False)
     assert res["deep"] > 1000
     assert res["rate"] == pytest.approx(g, rel=0.1)
+
+
+def _g(own_pending):
+    m = TightSoP(0.40, min_depth=2, x_min=-20, x_max=20, p_max=20, q_max=20, own_pending=own_pending)
+    P, r, d, legal = m.tables()
+    return solve_tables(P, r, d, legal, m.start, cur=m.initial_policy())[1]
+
+
+def test_own_pending_count_only_adds_reveals():
+    g_ignore, g_count = _g("ignore"), _g("count")
+    assert g_count >= g_ignore
+    assert g_ignore == pytest.approx(0.016424926786388225, rel=1e-9)   # the value before the switch existed
