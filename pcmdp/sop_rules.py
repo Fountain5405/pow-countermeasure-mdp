@@ -82,9 +82,18 @@ def do_publish(s: State):
     return (0, 0, 0, pa, 0, 0, ph), a, 0
 
 
-def do_reveal(s: State):
+def do_reveal(s: State, own_pending: bool = False):
+    """Reveal the attacker chain.
+
+    2026-11-17: under own_pending ("count", MRL #146's text) the attacker
+    publishes the k = max(0, ph - D + 1) pending shares it needs for D + k > ph.
+    Published shares extend the new tip, are relayed, and can be included by
+    any miner, so they are no longer a private lead (carrying them would count
+    them twice); only pa - k stay private. Under "ignore" nothing is published.
+    """
     a, D, xa, pa, h, xh, ph = s
-    return (0, 0, 0, pa, 0, 0, 0), a, 0
+    k = max(0, ph - D + 1) if own_pending else 0
+    return (0, 0, 0, pa - k, 0, 0, 0), a, 0
 
 
 def do_give_up(s: State):

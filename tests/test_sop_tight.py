@@ -1,4 +1,6 @@
 """Tests for the tight SoP disruption model (sop_tight.py)."""
+import os
+
 import numpy as np
 import pytest
 
@@ -67,3 +69,39 @@ def test_own_pending_count_only_adds_reveals():
     g_ignore, g_count = _g("ignore"), _g("count")
     assert g_count >= g_ignore
     assert g_ignore == pytest.approx(0.016424926786388225, rel=1e-9)   # the value before the switch existed
+
+
+def test_count_reveal_drops_published_shares():
+    m = TightSoP(0.40, min_depth=2, x_min=-20, x_max=20, p_max=20, q_max=20, own_pending="count")
+    P, _, _, legal = m.tables()
+    # exact: D=3, pa=4, ph=5 -> k = 3 published, 1 stays; tight x = D + pa - ph = 2
+    s = (2, 3, 0, 4, 1, 0, 5)
+    i = m.from_exact(s)
+    assert legal[REVEAL][i]
+    j = P[REVEAL][i].indices[0]
+    assert j == m.from_exact(M.do_reveal(s, True)[0]) == m.index(0, 0, 1, 1, 0)
+    # ignore: nothing published
+    assert M.do_reveal(s, False)[0] == (0, 0, 0, 4, 0, 0, 0)
+
+
+def test_count_after_fix_not_above_legacy():
+    def g(legacy):
+        m = TightSoP(0.40, min_depth=2, x_min=-20, x_max=20, p_max=20, q_max=20,
+                     own_pending="count", legacy_carry=legacy)
+        P, r, d, legal = m.tables()
+        return solve_tables(P, r, d, legal, m.start, cur=m.initial_policy())[1]
+    assert g(False) <= g(True) + 1e-12
+
+
+@pytest.mark.skipif(not os.environ.get("PCMDP_SLOW"),
+                    reason="~45 min on box90 (10 M exact-game objects); set PCMDP_SLOW=1")
+def test_count_model_matches_exact_game():
+    """alpha 0.40, min_depth 5, non-binding caps, exact game without the window, 10 M objects."""
+    m = TightSoP(0.40, min_depth=5, x_min=-48, x_max=48, p_max=48, q_max=24, own_pending="count")
+    P, r, d, legal = m.tables()
+    policy, g, _ = solve_tables(P, r, d, legal, m.start, cur=m.initial_policy())
+    res = exact_rate(m, policy, 10_000_000, seed=5, window=False)
+    n = res["deep"]
+    assert n > 100
+    sigma = g * n ** -0.5       # Poisson count error on the rate
+    assert abs(res["rate"] - g) < 3 * sigma

@@ -181,7 +181,7 @@ def exact_rate(model: SoPWalkModel, policy, objects: int, seed: int = 1, own_pen
             if h >= model.min_depth:
                 deep += 1
                 depths.append(h)
-            s = M.do_reveal(s)[0]
+            s = M.do_reveal(s, own_pending)[0]
         elif act is A.Publish:
             s = M.do_publish(s)[0]
         elif act is A.GiveUp:

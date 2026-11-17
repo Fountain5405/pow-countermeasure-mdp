@@ -11,6 +11,11 @@ by ph. This model keeps ph:
       honest object);
   pa  the attacker's pending shares; ph the honest pending shares.
 
+Reveal carry (2026-11-17): under own_pending="count" a reveal publishes the
+k = max(0, pa - x + 1) pending shares it needs; published shares are public
+(any miner may include them), so carrying them as a private lead would count
+them twice. Only pa' = min(pa, x - 1) stay private. "ignore" publishes none.
+
 A reveal is accepted iff x - pa > 0 (sop_mdp's D > ph). The only departures
 from the exact game left:
 - the window (no reveal before 32 objects past a branch's first block) is
@@ -49,6 +54,8 @@ class TightSoP:
     p_max: int = 32
     q_max: int = 32
     own_pending: str = "ignore"   # "ignore": accept iff x - pa > 0; "count": x > 0
+    # True: the pre-2026-11-17 reveal that carries all pa (kept to reproduce old values)
+    legacy_carry: bool = False
 
     def __post_init__(self):
         if self.own_pending not in ("ignore", "count"):
@@ -103,7 +110,13 @@ class TightSoP:
         P_hold = csr_matrix((vals, (rows, cols)), shape=(n, n))
         P_hold.sum_duplicates()
         zeros = np.zeros(n, dtype=int)
-        reveal_to = self.index(zeros, zeros, clamp(pa), pa, zeros)
+        # 2026-11-17: under "count" a reveal publishes k = max(0, pa - x + 1) shares (x = D + pa - ph),
+        # which become public (any miner may include them) and drop out of the next race; only
+        # pa' = min(pa, x - 1) stay private. Under "ignore" nothing is published.
+        pa_r = pa
+        if self.own_pending == "count" and not self.legacy_carry:
+            pa_r = np.clip(np.minimum(pa, x - 1), 0, None)
+        reveal_to = self.index(zeros, zeros, clamp(pa_r), pa_r, zeros)
         publish_to = self.index(zeros, zeros, clamp(pa - ph), pa, ph)
         give_up_to = self.index(zeros, zeros, clamp(-ph), zeros, ph)
         one = lambda to: csr_matrix((np.ones(n), (np.arange(n), to)), shape=(n, n))
@@ -192,7 +205,7 @@ def exact_rate(model: TightSoP, policy, objects: int, seed: int = 1, window: boo
             act = HOLD
         if act == REVEAL:
             deep += h >= model.min_depth
-            s = M.do_reveal(s)[0]
+            s = M.do_reveal(s, model.own_pending == "count")[0]
         elif act == PUBLISH:
             s = M.do_publish(s)[0]
         elif act == GIVE_UP:
