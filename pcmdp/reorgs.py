@@ -116,16 +116,19 @@ def stationary_distribution(model: BlockchainModel, policy, method: str = "direc
     initial state and solve pi (P - I) = 0 with a sparse LU factorisation,
     pinning pi(initial state) = 1 (the initial state's balance row is the
     redundant one and is dropped) and normalising afterwards; exact to
-    round-off, so rates far below 1e-13 survive. Not a dense row of ones for
-    the normalisation: that filled SuperLU in past 64 GB at 3.26 M states
-    (Fruitchains, 2026-11-17).
+    round-off, so rates far below 1e-13 survive. It factors I - P (rows and
+    column of the initial state dropped), the orientation howard.py factors,
+    and solves the transposed system with that factorisation
+    (`splu(...).solve(..., trans="T")`). Factoring P^T - I directly, with or
+    without a dense normalisation row, filled SuperLU in past 64 GB at 3.26 M
+    states (Fruitchains, 2026-11-17), while Howard's I - P took ~20 GB.
     "eigs": pto's way (ARPACK on the whole chain); its round-off of about
     1e-13 of the largest probability swamps rare states (2026-11-16: a SoP
     rate of 3e-13 came out as 1.3e-8).
     """
     from scipy.sparse import csr_matrix, identity
     from scipy.sparse.csgraph import breadth_first_order
-    from scipy.sparse.linalg import spsolve
+    from scipy.sparse.linalg import splu
 
     mdp = SparseBlockchainMDP(model)
     mdp.build_mdp()
@@ -145,12 +148,14 @@ def stationary_distribution(model: BlockchainModel, policy, method: str = "direc
     sub = chain[reach][:, reach]
     n = len(reach)
     k = int(np.searchsorted(reach, mdp.initial_state_index))
-    a = (sub.T - identity(n, format="csr")).tocsc()
+    # sum_i pi_i B[i, j] = 0 for every j, B = I - P; drop column k (redundant)
+    # and pin pi_k = 1: B[keep, keep]^T pi_keep = -B[k, keep]^T
+    b = (identity(n, format="csr") - sub).tocsr()
     keep = np.r_[0:k, k + 1:n]
     sol = np.ones(n)                  # pi(initial state) = 1; normalised below
     if n > 1:
-        a_keep = a[keep][:, keep]
-        sol[keep] = spsolve(a_keep.tocsc(), -a[keep][:, [k]].toarray().ravel())
+        lu = splu(b[keep][:, keep].tocsc())
+        sol[keep] = lu.solve(-b[k][:, keep].toarray().ravel(), trans="T")
     pi = np.zeros(chain.shape[0])
     pi[reach] = np.clip(sol, 0.0, None)
     return mdp, pi / pi.sum()
