@@ -1,0 +1,31 @@
+tillaSmaller: 12300
+tillaEqual: 12380
+tillaOneBigger: 13580
+numOfStates (tillaBigger): 189080
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.067393
+new highRou:0.066084
+new lowRou:0.06543
+new highRou:0.065757
+new highRou:0.065593
+new highRou:0.065512
+lowerBoundReward: 
+6.551157075409605e-02
+new highAlpha:0.06543

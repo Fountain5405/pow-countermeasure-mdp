@@ -1,0 +1,6 @@
+== PoP port vs reference exact (maxB=12, k=3)
+pop alpha=0.27 max_b=12 howard g=0.272393004159 g-alpha=+2.393e-03
+pop alpha=0.3 max_b=12 howard g=0.315897989004 g-alpha=+1.590e-02
+pop alpha=0.264 max_b=12 howard g=0.264000000000 g-alpha=+0.000e+00
+pop alpha=0.2641 max_b=12 howard g=0.264106237436 g-alpha=+6.237e-06
+== SHTB port vs reference exact (max_fork=40, regions=15)

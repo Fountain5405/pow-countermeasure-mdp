@@ -1,0 +1,4 @@
+loaded exp/shtb_r15_mF40: n=189080
+{"prefix": "exp/shtb_r15_mF40", "alpha": 0.02, "g": 0.0200000000000001, "g_stat": 0.0200000000000001, "g_minus_alpha": 1.0061396160665481e-16, "iters": 4, "reach": 30, "pi_min": 0.00133333333333334, "secs": 914.5}
+{"prefix": "exp/shtb_r15_mF40", "alpha": 0.1, "g": 0.10054883777323849, "g_stat": 0.10054883777241355, "g_minus_alpha": 0.0005488377732384836, "iters": 5, "reach": 177933, "pi_min": -5.2383952928390705e-14, "secs": 6161.3}
+bracket lo=0.02 g-a=1.006e-16  hi=0.1 g-a=5.488e-04

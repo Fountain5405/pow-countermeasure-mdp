@@ -1,0 +1,13 @@
+loaded exp/pop_mB12: n=114243
+{"prefix": "exp/pop_mB12", "alpha": 0.2, "g": 0.19999999999999998, "g_stat": 0.19999999999999996, "g_minus_alpha": -2.7755575615628914e-17, "iters": 11, "reach": 2, "pi_min": 0.19999999999999996, "secs": 3.8}
+{"prefix": "exp/pop_mB12", "alpha": 0.24, "g": 0.24000000000000002, "g_stat": 0.24, "g_minus_alpha": 2.7755575615628914e-17, "iters": 11, "reach": 2, "pi_min": 0.24, "secs": 3.8}
+{"prefix": "exp/pop_mB12", "alpha": 0.249, "g": 0.24900000000000003, "g_stat": 0.249, "g_minus_alpha": 2.7755575615628914e-17, "iters": 11, "reach": 2, "pi_min": 0.249, "secs": 3.8}
+{"prefix": "exp/pop_mB12", "alpha": 0.25, "g": 0.25, "g_stat": 0.25, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.25, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.2501, "g": 0.2501, "g_stat": 0.2501, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.2501, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.251, "g": 0.251, "g_stat": 0.251, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.251, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.2525, "g": 0.2525, "g_stat": 0.25249999999999995, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.25249999999999995, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.255, "g": 0.255, "g_stat": 0.255, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.255, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.26, "g": 0.26, "g_stat": 0.26, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.26, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.2625, "g": 0.2625, "g_stat": 0.26249999999999996, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.26249999999999996, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.27, "g": 0.27239543294003604, "g_stat": 0.27239543294003565, "g_minus_alpha": 0.002395432940036024, "iters": 11, "reach": 171, "pi_min": 1.8465745037544884e-07, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.3, "g": 0.31590190669582374, "g_stat": 0.31590190669582346, "g_minus_alpha": 0.015901906695823753, "iters": 11, "reach": 171, "pi_min": 3.8423341935664805e-07, "secs": 3.9}

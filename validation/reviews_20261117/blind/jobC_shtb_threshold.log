@@ -1,0 +1,220 @@
+tillaSmaller: 12300
+tillaEqual: 12380
+tillaOneBigger: 13580
+numOfStates (tillaBigger): 189080
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.051066
+new highRou:0.050283
+new lowRou:0.049891
+new highRou:0.050087
+new lowRou:0.049989
+lowerBoundReward: 
+4.998930921052631e-02
+new lowAlpha:0.05
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.077666
+new highRou:0.075958
+new lowRou:0.075104
+new highRou:0.075531
+new highRou:0.075317
+new highRou:0.075211
+new lowRou:0.075157
+lowerBoundReward: 
+7.515725295608108e-02
+new highAlpha:0.075
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.064271
+new highRou:0.063073
+new lowRou:0.062474
+new highRou:0.062773
+new highRou:0.062624
+new highRou:0.062549
+lowerBoundReward: 
+6.254882812500000e-02
+new lowAlpha:0.0625
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.070944
+new highRou:0.069503
+new lowRou:0.068783
+new highRou:0.069143
+new highRou:0.068963
+new highRou:0.068873
+lowerBoundReward: 
+6.887292234689596e-02
+new highAlpha:0.06875
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.067601
+new highRou:0.066285
+new lowRou:0.065627
+new highRou:0.065956
+new highRou:0.065791
+new highRou:0.065709
+lowerBoundReward: 
+6.570919177205269e-02
+new highAlpha:0.065625
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.065935
+new highRou:0.064678
+new lowRou:0.06405
+new highRou:0.064364
+new highRou:0.064207
+new highRou:0.064129
+lowerBoundReward: 
+6.412859119039543e-02
+new lowAlpha:0.064062
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.066768
+new highRou:0.065481
+new lowRou:0.064838
+new highRou:0.06516
+new highRou:0.064999
+new highRou:0.064919
+lowerBoundReward: 
+6.491878652931156e-02
+new lowAlpha:0.064844
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.067184
+new highRou:0.065883
+new lowRou:0.065233
+new highRou:0.065558
+new highRou:0.065395
+new highRou:0.065314
+lowerBoundReward: 
+6.531396287981059e-02
+new lowAlpha:0.065234

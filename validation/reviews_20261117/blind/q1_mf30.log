@@ -1,0 +1,6 @@
+alpha=0.4 gamma=0.0 max_fork=30 howard g=0.4876810722  aumayr_lower_bound=0.4876785278  diff=+2.54e-06
+alpha=0.45 gamma=0.0 max_fork=30 howard g=0.6587431022  aumayr_lower_bound=0.6587448120  diff=-1.71e-06
+alpha=0.4 gamma=0.5 max_fork=30 howard g=0.5725029153  aumayr_lower_bound=0.5725021362  diff=+7.79e-07
+alpha=0.45 gamma=0.5 max_fork=30 howard g=0.7589256781  aumayr_lower_bound=0.7589187622  diff=+6.92e-06
+alpha=0.4 gamma=1.0 max_fork=30 howard g=0.6666650939  aumayr_lower_bound=0.6666641235  diff=+9.70e-07
+alpha=0.45 gamma=1.0 max_fork=30 howard g=0.8177640797  aumayr_lower_bound=0.8177566528  diff=+7.43e-06

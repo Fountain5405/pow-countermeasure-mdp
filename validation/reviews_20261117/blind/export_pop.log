@@ -1,0 +1,64 @@
+numOfStates: 
+114243
+processing state: 50000
+processing state: 100000
+exported /home/selfishmining/mdp_work/blind/work/exp/pop_mB12_a0.30 nstates=114243
+numOfStates: 
+114243
+processing state: 50000
+processing state: 100000
+exported /home/selfishmining/mdp_work/blind/work/exp/pop_mB12_a0.40 nstates=114243
+numOfStates: 
+334083
+processing state: 50000
+processing state: 100000
+processing state: 150000
+processing state: 200000
+processing state: 250000
+processing state: 300000
+exported /home/selfishmining/mdp_work/blind/work/exp/pop_mB16_a0.30 nstates=334083
+numOfStates: 
+334083
+processing state: 50000
+processing state: 100000
+processing state: 150000
+processing state: 200000
+processing state: 250000
+processing state: 300000
+exported /home/selfishmining/mdp_work/blind/work/exp/pop_mB16_a0.40 nstates=334083
+numOfStates: 
+777923
+processing state: 50000
+processing state: 100000
+processing state: 150000
+processing state: 200000
+processing state: 250000
+processing state: 300000
+processing state: 350000
+processing state: 400000
+processing state: 450000
+processing state: 500000
+processing state: 550000
+processing state: 600000
+processing state: 650000
+processing state: 700000
+processing state: 750000
+exported /home/selfishmining/mdp_work/blind/work/exp/pop_mB20_a0.30 nstates=777923
+numOfStates: 
+777923
+processing state: 50000
+processing state: 100000
+processing state: 150000
+processing state: 200000
+processing state: 250000
+processing state: 300000
+processing state: 350000
+processing state: 400000
+processing state: 450000
+processing state: 500000
+processing state: 550000
+processing state: 600000
+processing state: 650000
+processing state: 700000
+processing state: 750000
+exported /home/selfishmining/mdp_work/blind/work/exp/pop_mB20_a0.40 nstates=777923

@@ -1,0 +1,74 @@
+tillaSmaller: 12300
+tillaEqual: 12380
+tillaOneBigger: 13580
+numOfStates (tillaBigger): 189080
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+exported /home/selfishmining/mdp_work/blind/work/exp/shtb_r15_mF40_a0.30 nstates=189080
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+exported /home/selfishmining/mdp_work/blind/work/exp/shtb_r15_mF40_a0.40 nstates=189080
+tillaSmaller: 8200
+tillaEqual: 8280
+tillaOneBigger: 9080
+numOfStates (tillaBigger): 87080
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+exported /home/selfishmining/mdp_work/blind/work/exp/shtb_r10_mF40_a0.30 nstates=87080
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+exported /home/selfishmining/mdp_work/blind/work/exp/shtb_r10_mF40_a0.40 nstates=87080
+tillaSmaller: 4100
+tillaEqual: 4180
+tillaOneBigger: 4580
+numOfStates (tillaBigger): 24080
+processing state: 10000
+processing state: 20000
+exported /home/selfishmining/mdp_work/blind/work/exp/shtb_r5_mF40_a0.30 nstates=24080
+processing state: 10000
+processing state: 20000
+exported /home/selfishmining/mdp_work/blind/work/exp/shtb_r5_mF40_a0.40 nstates=24080

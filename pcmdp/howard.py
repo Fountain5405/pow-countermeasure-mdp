@@ -15,7 +15,11 @@ Krylov solvers at rtol 1e-7 and stops policy iteration once
 span(V - Vprev) < epsilon. With tiny rewards (the disruption objective at low
 alpha) both trigger: on the SoP walk model at alpha 0.25 PTO reported
 3.4e-13 deep reorgs per block interval for a policy whose exact rate is
-1.34e-8 (2026-11-16).
+1.34e-8 (2026-11-16). PTO's own pto_solver.py also zeroes transitions into
+the final state, so an illegal action looks like a reward-0 termination; at
+rates below about 1e-6 it returns policies that take illegal actions. Above
+that its policies were optimal and its values ran about 10/H low (two
+independent reviews, 2026-11-17, validation/reviews_20261117/).
 
 Assumes the policies visited are unichain (every state leads back to the
 start state), which holds for the models here: give-up and adopt return to it.

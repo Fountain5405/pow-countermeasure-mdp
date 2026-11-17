@@ -1,0 +1,9 @@
+toolbox: /home/selfishmining/mdp_work/ref/prs/MDPtoolbox
+
+RESULT alpha=0.45 gamma=0.5 cap=30 lowerBoundRou=0.758919 final_lowRou=0.858907 ceiling=0.858919 secs=10
+
+RESULT alpha=0.45 gamma=0.0 cap=30 lowerBoundRou=0.658745 final_lowRou=0.758733 ceiling=0.758745 secs=9
+
+RESULT alpha=0.44 gamma=1.0 cap=30 lowerBoundRou=0.785576 final_lowRou=0.877507 ceiling=0.885576 secs=9
+
+RESULT alpha=0.41 gamma=0.5 cap=30 lowerBoundRou=0.606056 final_lowRou=0.612611 ceiling=0.706056 secs=6

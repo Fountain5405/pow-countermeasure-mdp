@@ -1,0 +1,71 @@
+error    libmamba Could not set lock (Resource temporarily unavailable)
+warning  libmamba Cannot lock '/home/selfishmining/.cache/mamba/proc'
+    Waiting for other mamba process to finish
+numOfStates: 
+777923
+processing state: 50000
+processing state: 100000
+processing state: 150000
+processing state: 200000
+processing state: 250000
+processing state: 300000
+processing state: 350000
+processing state: 400000
+processing state: 450000
+processing state: 500000
+processing state: 550000
+processing state: 600000
+processing state: 650000
+processing state: 700000
+processing state: 750000
+
+newHighRou0.30922
+newHighRou0.28586
+newHighRou0.27418
+newHighRou0.26834
+newHighRou0.26542
+newHighRou0.26396
+newHighRou0.26323
+newHighRou0.26286
+newHighRou0.26268
+newHighRou0.26259
+newHighRou0.26255
+newHighRou0.26252
+newHighRou0.26251
+alpha: 0.2625 lowerBoundReward: 
+0.262511405298265
+RESULT alpha=0.2625 maxB=20 rou=0.262511 secs=225
+numOfStates: 
+777923
+processing state: 50000
+processing state: 100000
+processing state: 150000
+processing state: 200000
+processing state: 250000
+processing state: 300000
+processing state: 350000
+processing state: 400000
+processing state: 450000
+processing state: 500000
+processing state: 550000
+processing state: 600000
+processing state: 650000
+processing state: 700000
+processing state: 750000
+
+newHighRou0.30039
+newHighRou0.27832
+newHighRou0.26729
+newHighRou0.26177
+newHighRou0.25901
+newHighRou0.25763
+newHighRou0.25694
+newHighRou0.25659
+newHighRou0.25642
+newHighRou0.25634
+newHighRou0.25629
+newHighRou0.25627
+newHighRou0.25626
+alpha: 0.25625 lowerBoundReward: 
+0.256260777321182
+RESULT alpha=0.2562 maxB=20 rou=0.256261 secs=220

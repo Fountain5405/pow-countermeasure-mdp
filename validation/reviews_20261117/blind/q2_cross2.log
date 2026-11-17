@@ -1,0 +1,19 @@
+== SHTB port vs reference exact (max_fork=10, regions=15)
+shtb alpha=0.0575 r15 mf10 howard g=0.057500000000 g-alpha=+0.000e+00
+shtb alpha=0.0580078125 r15 mf10 howard g=0.058007812500 g-alpha=+6.939e-18
+shtb alpha=0.05804687500000001 r15 mf10 howard g=0.058047030272 g-alpha=+1.553e-07
+shtb alpha=0.06 r15 mf10 howard g=0.060009212262 g-alpha=+9.212e-06
+shtb alpha=0.1 r15 mf10 howard g=0.100548837198 g-alpha=+5.488e-04
+== Nakamoto gamma=0.5 true curve (max_fork 40 and 80)
+nak alpha=0.4 gamma=0.5 max_fork=40 g=0.572507
+nak alpha=0.41 gamma=0.5 max_fork=40 g=0.606068
+nak alpha=0.42 gamma=0.5 max_fork=40 g=0.641470
+nak alpha=0.43 gamma=0.5 max_fork=40 g=0.678838
+nak alpha=0.44 gamma=0.5 max_fork=40 g=0.718183
+nak alpha=0.45 gamma=0.5 max_fork=40 g=0.759540
+nak alpha=0.4 gamma=0.5 max_fork=80 g=0.572507
+nak alpha=0.41 gamma=0.5 max_fork=80 g=0.606068
+nak alpha=0.42 gamma=0.5 max_fork=80 g=0.641471
+nak alpha=0.43 gamma=0.5 max_fork=80 g=0.678844
+nak alpha=0.44 gamma=0.5 max_fork=80 g=0.718207
+nak alpha=0.45 gamma=0.5 max_fork=80 g=0.759637

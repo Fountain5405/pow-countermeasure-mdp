@@ -1,0 +1,15 @@
+loaded exp/pop_mB12: n=114243
+{"prefix": "exp/pop_mB12", "alpha": 0.2625, "g": 0.2625, "g_stat": 0.26249999999999996, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.26249999999999996, "secs": 3.7}
+{"prefix": "exp/pop_mB12", "alpha": 0.27, "g": 0.27239543294003604, "g_stat": 0.27239543294003565, "g_minus_alpha": 0.002395432940036024, "iters": 11, "reach": 171, "pi_min": 1.8465745037544884e-07, "secs": 3.8}
+bracket lo=0.2625 g-a=0.000e+00  hi=0.27 g-a=2.395e-03
+{"prefix": "exp/pop_mB12", "alpha": 0.26625, "g": 0.2671179757464654, "g_stat": 0.2671179757464654, "g_minus_alpha": 0.0008679757464654103, "iters": 11, "reach": 178, "pi_min": 1.6432903963655264e-07, "secs": 3.8}
+{"prefix": "exp/pop_mB12", "alpha": 0.264375, "g": 0.26449270674494113, "g_stat": 0.2644927067449411, "g_minus_alpha": 0.000117706744941104, "iters": 11, "reach": 170, "pi_min": 1.5486676553117127e-07, "secs": 3.8}
+{"prefix": "exp/pop_mB12", "alpha": 0.2634375, "g": 0.2634375, "g_stat": 0.2634375, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.2634375, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.26390625, "g": 0.26390625, "g_stat": 0.26390625, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.26390625, "secs": 3.8}
+{"prefix": "exp/pop_mB12", "alpha": 0.264140625, "g": 0.2641651797639376, "g_stat": 0.26416517976393705, "g_minus_alpha": 2.455476393758982e-05, "iters": 11, "reach": 171, "pi_min": 1.5371572730858597e-07, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.2640234375, "g": 0.26402343749999996, "g_stat": 0.2640234375, "g_minus_alpha": -5.551115123125783e-17, "iters": 11, "reach": 2, "pi_min": 0.2640234375, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.26408203125, "g": 0.2640833199606581, "g_stat": 0.2640833199606588, "g_minus_alpha": 1.2887106580761198e-06, "iters": 11, "reach": 171, "pi_min": 1.5342905535118481e-07, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.264052734375, "g": 0.264052734375, "g_stat": 0.264052734375, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.264052734375, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.2640673828125, "g": 0.2640673828125, "g_stat": 0.2640673828125, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.2640673828125, "secs": 3.9}
+{"prefix": "exp/pop_mB12", "alpha": 0.26407470703125, "g": 0.26407470703125, "g_stat": 0.26407470703125, "g_minus_alpha": 0.0, "iters": 11, "reach": 2, "pi_min": 0.26407470703125, "secs": 3.9}
+PT in (0.264075, 0.264082]

@@ -1,0 +1,85 @@
+tillaSmaller: 12300
+tillaEqual: 12380
+tillaOneBigger: 13580
+numOfStates (tillaBigger): 189080
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.067148
+new highRou:0.065848
+new lowRou:0.065198
+new highRou:0.065523
+new highRou:0.06536
+new highRou:0.065279
+lowerBoundReward: 
+6.527918525353016e-02
+RESULT alpha=0.0652 lowerBoundReward(lowRou)=0.065198 excess=-2.06e-06 profitable_by_Threshold=0 secs=169
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.072284
+new highRou:0.070792
+new lowRou:0.070046
+new highRou:0.070419
+new highRou:0.070233
+new highRou:0.070139
+lowerBoundReward: 
+7.013936491935484e-02
+RESULT alpha=0.0700 lowerBoundReward(lowRou)=0.070046 excess=4.61e-05 profitable_by_Threshold=1 secs=172
+processing state: 10000
+processing state: 20000
+processing state: 30000
+processing state: 40000
+processing state: 50000
+processing state: 60000
+processing state: 70000
+processing state: 80000
+processing state: 90000
+processing state: 100000
+processing state: 110000
+processing state: 120000
+processing state: 130000
+processing state: 140000
+processing state: 150000
+processing state: 160000
+processing state: 170000
+processing state: 180000
+new highRou:0.061615
+new highRou:0.060507
+new lowRou:0.059954
+new highRou:0.060231
+new highRou:0.060092
+new highRou:0.060023
+lowerBoundReward: 
+6.002293882978722e-02
+RESULT alpha=0.0600 lowerBoundReward(lowRou)=0.059954 excess=-4.63e-05 profitable_by_Threshold=0 secs=159

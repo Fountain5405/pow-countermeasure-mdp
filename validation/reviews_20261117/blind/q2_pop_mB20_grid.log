@@ -1,0 +1,6 @@
+loaded exp/pop_mB20: n=777923
+{"prefix": "exp/pop_mB20", "alpha": 0.264, "g": 0.264, "g_stat": 0.264, "g_minus_alpha": 0.0, "iters": 19, "reach": 2, "pi_min": 0.264, "secs": 72.6}
+{"prefix": "exp/pop_mB20", "alpha": 0.26405, "g": 0.2640622093747011, "g_stat": 0.2640622093747015, "g_minus_alpha": 1.2209374701088738e-05, "iters": 19, "reach": 788, "pi_min": 6.5948580295301165e-12, "secs": 78.7}
+{"prefix": "exp/pop_mB20", "alpha": 0.3, "g": 0.3160120021789679, "g_stat": 0.3160120021789692, "g_minus_alpha": 0.01601200217896792, "iters": 19, "reach": 813, "pi_min": 6.799384205499055e-11, "secs": 79.7}
+{"prefix": "exp/pop_mB20", "alpha": 0.35, "g": 0.39418042073311227, "g_stat": 0.39418042073311255, "g_minus_alpha": 0.04418042073311229, "iters": 18, "reach": 784, "pi_min": 1.0444905260514896e-09, "secs": 73.3}
+{"prefix": "exp/pop_mB20", "alpha": 0.4, "g": 0.48078812295563145, "g_stat": 0.480788122955632, "g_minus_alpha": 0.08078812295563143, "iters": 11, "reach": 784, "pi_min": 1.0129707312654698e-08, "secs": 45.0}

@@ -1,0 +1,95 @@
+error    libmamba Could not set lock (Resource temporarily unavailable)
+warning  libmamba Cannot lock '/home/selfishmining/.cache/mamba/proc'
+    Waiting for other mamba process to finish
+numOfStates: 
+3694083
+processing state: 50000
+processing state: 100000
+processing state: 150000
+processing state: 200000
+processing state: 250000
+processing state: 300000
+processing state: 350000
+processing state: 400000
+processing state: 450000
+processing state: 500000
+processing state: 550000
+processing state: 600000
+processing state: 650000
+processing state: 700000
+processing state: 750000
+processing state: 800000
+processing state: 850000
+processing state: 900000
+processing state: 950000
+processing state: 1000000
+processing state: 1050000
+processing state: 1100000
+processing state: 1150000
+processing state: 1200000
+processing state: 1250000
+processing state: 1300000
+processing state: 1350000
+processing state: 1400000
+processing state: 1450000
+processing state: 1500000
+processing state: 1550000
+processing state: 1600000
+processing state: 1650000
+processing state: 1700000
+processing state: 1750000
+processing state: 1800000
+processing state: 1850000
+processing state: 1900000
+processing state: 1950000
+processing state: 2000000
+processing state: 2050000
+processing state: 2100000
+processing state: 2150000
+processing state: 2200000
+processing state: 2250000
+processing state: 2300000
+processing state: 2350000
+processing state: 2400000
+processing state: 2450000
+processing state: 2500000
+processing state: 2550000
+processing state: 2600000
+processing state: 2650000
+processing state: 2700000
+processing state: 2750000
+processing state: 2800000
+processing state: 2850000
+processing state: 2900000
+processing state: 2950000
+processing state: 3000000
+processing state: 3050000
+processing state: 3100000
+processing state: 3150000
+processing state: 3200000
+processing state: 3250000
+processing state: 3300000
+processing state: 3350000
+processing state: 3400000
+processing state: 3450000
+processing state: 3500000
+processing state: 3550000
+processing state: 3600000
+processing state: 3650000
+
+newHighRou0.30922
+newHighRou0.28586
+newHighRou0.27418
+newHighRou0.26834
+newHighRou0.26542
+newHighRou0.26396
+newHighRou0.26323
+newHighRou0.26286
+newHighRou0.26268
+newHighRou0.26259
+newHighRou0.26255
+newHighRou0.26252
+newHighRou0.26251
+alpha: 0.2625 lowerBoundReward: 
+0.262511405298265
+RESULT alpha=0.2625 maxB=30 rou=0.262511 secs=1838
