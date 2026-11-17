@@ -7,7 +7,7 @@ cd "$(dirname "$0")" || exit 1
 name=$1; module=$2; shift 2
 [ -s "out/$name.json" ] && exit 0
 ulimit -v "${MEM_KB:-64000000}"
-OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 MKL_NUM_THREADS=4 PYTHONPATH=code \
+OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 MKL_NUM_THREADS=4 PYTHONPATH="${CODE:-code}" \
     timeout "${TMO:-86400}" nice ../venv/bin/python -m "$module" "$@" --save-policy "pol/$name.npz" \
     > "out/$name.json.tmp" 2> "out/$name.err"
 rc=$?
