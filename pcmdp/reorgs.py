@@ -150,18 +150,40 @@ def stationary_distribution(model: BlockchainModel, policy, method: str = "direc
     return mdp, pi / pi.sum()
 
 
+def _share_transitions(model: TaggedModel, state, action, transitions: TaggedTransitions) -> TaggedTransitions:
+    """`transitions` with the revenue denominator (Rs + Rh) as difficulty.
+
+    Models built with normalization "time" and the disruption objective set
+    `time_rates`, which replaces the difficulty by elapsed block intervals in
+    every transition, whatever the live objective. The profile divides the
+    reorg counts by that, but the revenue must stay a share of main-chain
+    blocks, so it reads the same transitions once more with the flag off.
+    """
+    if not getattr(model, "time_rates", False):
+        return transitions
+    model.time_rates = False
+    try:
+        return model.get_state_transitions(state, action, check_valid=False)
+    finally:
+        model.time_rates = True
+
+
 def reorg_profile(model: TaggedModel, policy, max_report_depth: Optional[int] = None,
                   method: str = "direct") -> dict:
-    """Revenue and reorg rates per main-chain block under `policy`.
+    """Revenue and reorg rates under `policy`.
 
     The revenue is the attacker's share of main-chain blocks, whatever the
-    model's objective. Depth histograms are keyed by kind, then depth.
+    model's objective and normalization. Reorg rates are per unit of the
+    model's difficulty: per main-chain block, or per block interval for a
+    model with `time_rates` (normalization "time", disruption objective).
+    Depth histograms are keyed by kind, then depth.
     """
     _, pi = stationary_distribution(model, policy, method)
     revenue_model_objective = model.objective
     model.objective = "revenue"  # tags and revenue rewards, whatever was solved
     try:
-        blocks = 0.0
+        blocks = 0.0   # main-chain blocks: the revenue's denominator
+        units = 0.0    # the rates' denominator (blocks, or block intervals)
         attacker = 0.0
         rates: Dict[str, Dict[int, float]] = defaultdict(lambda: defaultdict(float))
         for index in np.nonzero(pi)[0]:
@@ -170,15 +192,18 @@ def reorg_profile(model: TaggedModel, policy, max_report_depth: Optional[int] = 
             action = model.action_space.index_to_element(int(policy[index]))
             transitions = model.get_state_transitions(state, action, check_valid=False)
             for next_state, probability in transitions.probabilities.items():
-                blocks += weight * probability * transitions.difficulty_contributions[next_state]
-                attacker += weight * probability * transitions.rewards[next_state]
+                units += weight * probability * transitions.difficulty_contributions[next_state]
                 for (kind, depth), q in transitions.reorgs.get(next_state, {}).items():
                     rates[kind][depth] += weight * q
+            share = _share_transitions(model, state, action, transitions)
+            for next_state, probability in share.probabilities.items():
+                blocks += weight * probability * share.difficulty_contributions[next_state]
+                attacker += weight * probability * share.rewards[next_state]
     finally:
         model.objective = revenue_model_objective
-    if blocks <= 0:
+    if blocks <= 0 or units <= 0:
         raise ValueError("the policy adds no blocks to the main chain")
-    return _summarise(attacker / blocks, {k: {d: v / blocks for d, v in hist.items()}
+    return _summarise(attacker / blocks, {k: {d: v / units for d, v in hist.items()}
                                           for k, hist in rates.items()},
                       model.min_depth, max_report_depth)
 
@@ -192,7 +217,8 @@ def simulate_profile(model: TaggedModel, policy, steps: int, seed: int = 1,
     cache: Dict[int, tuple] = {}
     try:
         state = model.initial_state
-        blocks = 0.0
+        blocks = 0.0   # main-chain blocks: the revenue's denominator
+        units = 0.0    # the rates' denominator (blocks, or block intervals)
         attacker = 0.0
         counts: Dict[str, Dict[int, float]] = defaultdict(lambda: defaultdict(float))
         for _ in range(steps):
@@ -202,13 +228,15 @@ def simulate_profile(model: TaggedModel, policy, steps: int, seed: int = 1,
                 transitions = model.get_state_transitions(state, action, check_valid=False)
                 next_states = list(transitions.probabilities)
                 probabilities = np.array([transitions.probabilities[s] for s in next_states])
-                cache[index] = (next_states, probabilities / probabilities.sum(), transitions)
-            next_states, probabilities, transitions = cache[index]
+                cache[index] = (next_states, probabilities / probabilities.sum(), transitions,
+                                _share_transitions(model, state, action, transitions))
+            next_states, probabilities, transitions, share = cache[index]
             next_state = next_states[rng.choice(len(next_states), p=probabilities)]
             if next_state == model.final_state:
                 raise ValueError(f"the policy takes an illegal action in state {state}")
-            blocks += transitions.difficulty_contributions[next_state]
-            attacker += transitions.rewards[next_state]
+            units += transitions.difficulty_contributions[next_state]
+            blocks += share.difficulty_contributions[next_state]
+            attacker += share.rewards[next_state]
             p = transitions.probabilities[next_state]
             for (kind, depth), q in transitions.reorgs.get(next_state, {}).items():
                 # a tag covers part of the transition's probability (gamma splits)
@@ -217,9 +245,9 @@ def simulate_profile(model: TaggedModel, policy, steps: int, seed: int = 1,
             state = next_state
     finally:
         model.objective = revenue_model_objective
-    return _summarise(attacker / blocks, {k: {d: v / blocks for d, v in hist.items()}
+    return _summarise(attacker / blocks, {k: {d: v / units for d, v in hist.items()}
                                           for k, hist in counts.items()},
-                      model.min_depth, max_report_depth, blocks=blocks)
+                      model.min_depth, max_report_depth, blocks=units)
 
 
 def _summarise(revenue: float, rates: Dict[str, Dict[int, float]], min_depth: int,

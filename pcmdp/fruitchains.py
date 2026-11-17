@@ -37,7 +37,11 @@ only private blocks. The cap on hb (max_fork) bounds reported depths.
 
 normalization "fruits" (the reference ratio): difficulty = credited fruits, so
 the disruption objective is per credited fruit; "events": every non-illegal
-transition counts 1, so rates are per mined unit.
+transition counts 1, so rates are per mined unit; "time" (disruption objective only,
+revenue is unaffected): every non-illegal
+transition is one unit, a block with probability 1/(1+b) (InitStates.m:15-18,
+b = bfRatio), so units arrive (1+b) times as fast as blocks and a unit lasts
+1/(1+b) block intervals; rates are per block interval.
 """
 from __future__ import annotations
 
@@ -112,12 +116,13 @@ class FruitchainsModel(TaggedModel, BlockchainModel):
             raise ValueError("gamma must be 0 or 1")
         if not 1 <= window <= max_fork:
             raise ValueError("need 1 <= window <= max_fork")
-        if normalization not in ("fruits", "events"):
-            raise ValueError("normalization must be fruits or events")
+        if normalization not in ("fruits", "events", "time"):
+            raise ValueError("normalization must be fruits, events or time")
         self.alpha, self.gamma = alpha, gamma
         self.max_fork, self.window = max_fork, window
         self.block_to_fruit, self.max_afa, self.max_hf = block_to_fruit, max_afa, max_hf
         self.normalization = normalization
+        self.time_rates = normalization == "time" and objective == "disruption"
         self.init_objective(objective, min_depth, weight)
         self.Action = self.create_int_enum("Action", ["Illegal", "Adopt", "Override", "Wait"])
         super().__init__()
@@ -199,6 +204,9 @@ class FruitchainsModel(TaggedModel, BlockchainModel):
         if self.normalization == "events":
             for nxt in t.difficulty_contributions:
                 t.difficulty_contributions[nxt] = 0.0 if nxt == self.final_state else 1.0
+        elif self.time_rates:
+            for nxt in t.difficulty_contributions:
+                t.difficulty_contributions[nxt] = 0.0 if nxt == self.final_state else 1.0 / (1 + b)
         return t
 
     def get_honest_revenue(self) -> float:

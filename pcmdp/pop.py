@@ -41,6 +41,12 @@ Reorg tags (state and action determine the depth except where noted):
   state, an assumption: the model does not record how many honest miners were on the
   attacker's branch, nor for how many of its blocks; we assume the tie share
   followed the whole published branch.
+(normalization "time" applies to the disruption objective only; revenue is unaffected.)
+normalization "time": every legal action ends with one block drawn (honest with
+prob. 1-alpha, selfish alpha: lines 29-37, 86-106, 117-239), so each non-final
+successor contributes 1 and rates are per block interval. The luck / last /
+published fields are bookkeeping and take no mining time. Illegal: 0.
+
 - even, hide, the "publish everything" match, adopt: honest miners stay on
   their own chain, nothing is reorganised publicly.
 """
@@ -61,7 +67,11 @@ LAST_H, LAST_S = 0, 1
 class PublishOrPerishModel(TaggedModel):
     def __init__(self, alpha: float, max_b: int = 30, k: int = 3, tie: float = 0.5,
                  objective: str = "revenue", min_depth: int = 11, weight: str = "count",
-                 stale_honest_luck: Optional[int] = None):
+                 stale_honest_luck: Optional[int] = None, normalization: str = "main_chain"):
+        if normalization not in ("main_chain", "time"):
+            raise ValueError("normalization must be main_chain or time")
+        self.normalization = normalization
+        self.time_rates = normalization == "time" and objective == "disruption"
         self.alpha = alpha
         self.max_b = max_b
         self.k = k
@@ -74,11 +84,12 @@ class PublishOrPerishModel(TaggedModel):
 
     def __repr__(self) -> str:
         return (f"{self.__class__.__name__}({self.alpha}, {self.max_b}, {self.k}, {self.tie}, "
-                f"{self.objective}, {self.min_depth}, {self.weight}, {self.stale_honest_luck})")
+                f"{self.objective}, {self.min_depth}, {self.weight}, {self.stale_honest_luck}, "
+                f"{self.normalization})")
 
     def __reduce__(self) -> Tuple[type, tuple]:
         return self.__class__, (self.alpha, self.max_b, self.k, self.tie, self.objective,
-                                self.min_depth, self.weight, self.stale_honest_luck)
+                                self.min_depth, self.weight, self.stale_honest_luck, self.normalization)
 
     def get_state_space(self) -> Space:
         m = self.max_b
@@ -118,6 +129,14 @@ class PublishOrPerishModel(TaggedModel):
 
     def get_tagged_transitions(self, state: BlockchainModel.State, action: BlockchainModel.Action,
                                check_valid: bool = True) -> TaggedTransitions:
+        t = self._tagged_transitions(state, action)
+        if self.time_rates:
+            for nxt in t.difficulty_contributions:
+                t.difficulty_contributions[nxt] = 0.0 if nxt == self.final_state else 1.0
+        return t
+
+    def _tagged_transitions(self, state: BlockchainModel.State, action: BlockchainModel.Action
+                            ) -> TaggedTransitions:
         t = TaggedTransitions()
         if state == self.final_state:
             t.add(self.final_state, probability=1)

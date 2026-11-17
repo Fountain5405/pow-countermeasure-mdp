@@ -45,6 +45,16 @@ is counted in BLOCKS, h is the number of honest blocks since the fork):
   Match published (not h: chain weight counts weak blocks, so the two branches
   have equal weight but not equal block counts). Depth 0 (only weak blocks
   published) is no tag. None when gamma = 0.
+- Adopt in an Active fork: the same minority drop, depth a - blocksInLast
+  (none when gamma = 0 or only weak blocks were published).
+
+(normalization "time" applies to the disruption objective only; revenue is unaffected.)
+normalization "time": every legal transition mines exactly one unit, a strong
+block with probability 1/ratio (Init.m: mtimes = "the inblock difficulty
+threshold"; InitStates.m:12-15), so units arrive ratio times as fast as
+strong blocks and a unit lasts 1/ratio strong-block intervals. Illegal: 0.
+Rates are then per strong-block interval.
+
 What the state cannot determine: once the attacker's lead passes dw = 3 during
 an Active fork the reference forgets the fork (fork = Irrelevant for dw > 3),
 so the gamma share it modelled is dropped from then on; no tag is produced
@@ -82,7 +92,11 @@ class _OutOfRange(Exception):
 class SubchainsModel(TaggedModel):
     def __init__(self, alpha: float, gamma: float, ratio: int = 2, max_fork: int = 20,
                  min_dw: int = -5, max_dw: int = 20, objective: str = "revenue",
-                 min_depth: int = 11, weight: str = "count"):
+                 min_depth: int = 11, weight: str = "count", normalization: str = "main_chain"):
+        if normalization not in ("main_chain", "time"):
+            raise ValueError("normalization must be main_chain or time")
+        self.normalization = normalization
+        self.time_rates = normalization == "time" and objective == "disruption"
         if max_dw < 4 or min_dw > -1 or max_fork < 4:
             raise ValueError("need max_dw >= 4, min_dw <= -1, max_fork >= 4")
         if ratio < 1:
@@ -102,10 +116,11 @@ class SubchainsModel(TaggedModel):
         return (self.alpha, self.gamma, self.ratio, self.max_fork, self.min_dw, self.max_dw)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}{self._args()}, {self.objective}, {self.min_depth}, {self.weight})"
+        return f"{self.__class__.__name__}{self._args()}, {self.objective}, {self.min_depth}, {self.weight}, {self.normalization})"
 
     def __reduce__(self) -> Tuple[type, tuple]:
-        return self.__class__, self._args() + (self.objective, self.min_depth, self.weight)
+        return self.__class__, self._args() + (self.objective, self.min_depth, self.weight,
+                                               self.normalization)
 
     def get_state_space(self):
         underlying = MultiDimensionalDiscreteSpace((0, self.max_fork), (0, self.max_fork),
@@ -145,6 +160,9 @@ class SubchainsModel(TaggedModel):
         except _OutOfRange:
             t = TaggedTransitions()
             t.add(self.final_state, probability=1, reward=self.error_penalty)
+        if self.time_rates:
+            for nxt in t.difficulty_contributions:
+                t.difficulty_contributions[nxt] = 0.0 if nxt == self.final_state else 1.0 / self.ratio
         return t
 
     def _illegal(self, t):
@@ -172,10 +190,13 @@ class SubchainsModel(TaggedModel):
 
         if action is A.Adopt:
             # InitStates.m:20-23, 52-62; Rh = h on all four successors (:84)
-            add(c(0, 1, -1, Irr, 0), Phb, rh=h)
-            add(c(0, 0, -1, Irr, 0), Phi, rh=h)
-            add(c(1, 0, 1, Irr, 0), Pab, rh=h)
-            add(c(0, 0, 1, Irr, 0), Pai, rh=h)
+            # from an Active fork the gamma share on the published units drops them
+            blk = _blocks(last)
+            drop = [(MINORITY, a - blk)] if fork is self.Fork.Active and ga > 0 else []
+            add(c(0, 1, -1, Irr, 0), Phb, rh=h, reorgs=drop)
+            add(c(0, 0, -1, Irr, 0), Phi, rh=h, reorgs=drop)
+            add(c(1, 0, 1, Irr, 0), Pab, rh=h, reorgs=drop)
+            add(c(0, 0, 1, Irr, 0), Pai, rh=h, reorgs=drop)
             return
 
         blocks = _blocks(last)

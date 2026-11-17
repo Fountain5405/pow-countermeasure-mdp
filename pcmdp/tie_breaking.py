@@ -13,6 +13,10 @@ and nothing elsewhere, as in the reference.
 
 Every action ends with one newly mined block already drawn (the reference
 samples it inside the action), so normalization "time" = 1 per transition.
+normalization "time" applies to the disruption objective only: with the revenue
+objective the difficulty stays Rs + Rh, so revenue values and the policies
+that earn them are the same under both normalizations (a time-based revenue
+would be attacker blocks per interval, not a share).
 
 Reorg tags (depth = honest public blocks removed; the state's h is exactly
 the honest blocks since the common ancestor, which each publish resets):
@@ -26,11 +30,11 @@ the honest blocks since the common ancestor, which each publish resets):
   honest branch ((1-gamma)(1-alpha)) makes the gamma share drop the attacker's
   h published blocks, (MINORITY, h) (none when gamma is 0). Override tags
   (MAJORITY, h).
+  Adopt from an Active tie (the attacker abandons its published tie branch,
+  which the gamma share still follows) is (MINORITY, h) too (none when gamma is 0).
 The state cannot say: with gamma = 0.5 exactly half of the honest power is on
 each side of an Active tie, so "majority" for the Active branch is a
-convention (inherited from nakamoto.py); and Adopt from an Active UTB state
-(the attacker abandons its published tie branch, which the gamma share may
-still be mining on) is untagged.
+convention (inherited from nakamoto.py).
 """
 from __future__ import annotations
 
@@ -58,6 +62,7 @@ class _TieBreakingModel(TaggedModel):
         self.alpha = alpha
         self.max_fork = max_fork
         self.normalization = normalization
+        self.time_rates = normalization == "time" and objective == "disruption"
         self.init_objective(objective, min_depth, weight)
         self.Action = self.create_int_enum("Action", self.ACTIONS)
 
@@ -65,7 +70,7 @@ class _TieBreakingModel(TaggedModel):
         return DiscreteSpace(self.Action)
 
     def _finish(self, transitions: TaggedTransitions, action) -> TaggedTransitions:
-        if self.normalization == "time":
+        if self.time_rates:
             mined = action is not self.Action.Illegal
             for next_state in transitions.difficulty_contributions:
                 transitions.difficulty_contributions[next_state] = (
@@ -138,8 +143,10 @@ class UniformTieBreakingModel(_TieBreakingModel):
             return self._illegal(t, self.error_penalty / 2)
 
         if action is A.Adopt:  # lines 62-68, 83-84: honest gets h, next block drawn from the base states
-            t.add((0, 1, 0), probability=1 - al, difficulty_contribution=h)
-            t.add((1, 0, 0), probability=al, difficulty_contribution=h)
+            # from an Active tie the gamma share on the attacker's h published blocks drops them
+            drop = [(MINORITY, h)] if fork == 1 and g > 0 else []
+            t.add((0, 1, 0), probability=1 - al, difficulty_contribution=h, reorgs=drop)
+            t.add((1, 0, 0), probability=al, difficulty_contribution=h, reorgs=drop)
 
         elif action is A.Override:  # lines 86-96
             if a > h:

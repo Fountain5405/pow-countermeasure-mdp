@@ -27,11 +27,20 @@ Reorg tags (fork choice is Nakamoto's, so as in nakamoto.py):
   (majority, depth h), on both successors (the next block comes after).
 - Wait in an Active fork, honest miner on the attacker's branch (:127-136,
   prob. gamma (1-alpha)): majority, depth h.
+- Adopt in an Active fork (tag added 2026-11): the same gamma share, minority,
+  depth h (none if gamma = 0).
 - Wait in an Active fork or Match, honest miner on the honest branch (:123-126,
   :147-149; prob. (1-gamma)(1-alpha)): the gamma share that followed the
   attacker's h published blocks drops them: minority, depth h (none if gamma = 0).
 The depth is exact: h is the number of honest blocks since the fork and the
 honest chain loses exactly those.
+
+normalization "main_chain" (default): difficulty = Rs + Rh (the reference's rou).
+(normalization "time" applies to the disruption objective only; revenue is unaffected.)
+normalization "time": every legal transition mines exactly one block (Adopt,
+Override and the Match / Active-Wait race all end with the next block drawn,
+alpha / 1 - alpha: InitStates.m:33-39, 68-106, 110-159), so it contributes 1 and
+rates are per block interval (RS and PRS have no sub-blocks). Illegal: 0.
 
 PRS' reward_coefficient defaults to alpha as in the reference's run.py.
 """
@@ -54,7 +63,11 @@ def count_blocks(history: int) -> int:
 class RewardSplittingModel(TaggedModel):
     def __init__(self, alpha: float, gamma: float, max_fork: int = 30, window: int = 6,
                  fork_window: int = 6, objective: str = "revenue", min_depth: int = 11,
-                 weight: str = "count"):
+                 weight: str = "count", normalization: str = "main_chain"):
+        if normalization not in ("main_chain", "time"):
+            raise ValueError("normalization must be main_chain or time")
+        self.normalization = normalization
+        self.time_rates = normalization == "time" and objective == "disruption"
         window, fork_window = int(window), int(fork_window)
         if window < 2:
             raise ValueError("window must be at least 2")
@@ -74,10 +87,11 @@ class RewardSplittingModel(TaggedModel):
 
     def __repr__(self) -> str:
         return (f"{self.__class__.__name__}{self._args()}, {self.objective}, "
-                f"{self.min_depth}, {self.weight})")
+                f"{self.min_depth}, {self.weight}, {self.normalization})")
 
     def __reduce__(self) -> Tuple[type, tuple]:
-        return self.__class__, self._args() + (self.objective, self.min_depth, self.weight)
+        return self.__class__, self._args() + (self.objective, self.min_depth, self.weight,
+                                               self.normalization)
 
     def get_state_space(self):
         return DefaultValueSpace(
@@ -104,6 +118,13 @@ class RewardSplittingModel(TaggedModel):
         return a, h, (self.Fork.Irrelevant if a < h else fork), history
 
     def get_tagged_transitions(self, state, action, check_valid: bool = True) -> TaggedTransitions:
+        t = self._tagged_transitions(state, action)
+        if self.time_rates:
+            for nxt in t.difficulty_contributions:
+                t.difficulty_contributions[nxt] = 0.0 if nxt == self.final_state else 1.0
+        return t
+
+    def _tagged_transitions(self, state, action) -> TaggedTransitions:
         t = TaggedTransitions()
         if state == self.final_state:
             t.add(self.final_state, probability=1)
@@ -118,10 +139,12 @@ class RewardSplittingModel(TaggedModel):
 
         elif action is A.Adopt:                      # InitStates.m:33-39, 61-64
             rs, rh = self.adopt_rewards(hist_sum + min(a, self.fork_window), h, a)
+            # Adopt from an Active fork: the gamma share on the attacker's h published blocks drops them
+            drop = [(MINORITY, h)] if fork is F.Active and gamma > 0 else []
             t.add(self._st(0, 1, F.Irrelevant, 0), probability=1 - alpha, reward=rs,
-                  difficulty_contribution=rs + rh)
+                  difficulty_contribution=rs + rh, reorgs=drop)
             t.add(self._st(1, 0, F.Irrelevant, 0), probability=alpha, reward=rs,
-                  difficulty_contribution=rs + rh)
+                  difficulty_contribution=rs + rh, reorgs=drop)
 
         elif action is A.Wait:                       # InitStates.m:110-137
             if fork is not F.Active and a + 1 <= mx and h + 1 <= mx:
@@ -174,16 +197,18 @@ class RewardSplittingModel(TaggedModel):
 class ProportionalRewardSplittingModel(RewardSplittingModel):
     def __init__(self, alpha: float, gamma: float, max_fork: int = 30, window: int = 6,
                  fork_window: int = 6, reward_coefficient: float = None, objective: str = "revenue",
-                 min_depth: int = 11, weight: str = "count"):
+                 min_depth: int = 11, weight: str = "count", normalization: str = "main_chain"):
         self.reward_coefficient = alpha if reward_coefficient is None else reward_coefficient
-        super().__init__(alpha, gamma, max_fork, window, fork_window, objective, min_depth, weight)
+        super().__init__(alpha, gamma, max_fork, window, fork_window, objective, min_depth, weight,
+                         normalization)
 
     def _args(self) -> tuple:
         return super()._args() + (self.reward_coefficient,)
 
     def __reduce__(self) -> Tuple[type, tuple]:
         # (alpha, gamma, max_fork, window, fork_window, reward_coefficient, objective, ...)
-        return self.__class__, self._args() + (self.objective, self.min_depth, self.weight)
+        return self.__class__, self._args() + (self.objective, self.min_depth, self.weight,
+                                               self.normalization)
 
     # ProportionalRewardSplitting/InitStates.m:61-64
     def adopt_rewards(self, shared: int, h: int, a: int) -> Tuple[float, float]:
