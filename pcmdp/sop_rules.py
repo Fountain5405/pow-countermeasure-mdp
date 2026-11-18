@@ -58,12 +58,18 @@ def accepted(s: State, own_pending: bool) -> bool:
     return D + (pa if own_pending else 0) > ph
 
 
-def event(s: State, is_attacker: bool, is_block: bool, caps: Caps) -> State:
+def event(s: State, is_attacker: bool, is_block: bool, caps: Caps, honest_shares: bool = False) -> State:
+    """One object. honest_shares (2026-11-18, MRL #146's slot rule as tevador's simulator plays
+    it): before either side's first block since the fork, an honest share also fits the
+    attacker's rival first block, in its slot, so it joins the attacker's pending shares when
+    the attacker lacks that slot (ph >= pa)."""
     a, D, xa, pa, h, xh, ph = s
     if not is_block:
         if is_attacker:
             pa = min(pa + 1, caps.p_max)
         else:
+            if honest_shares and a == 0 and h == 0 and ph >= pa:
+                pa = min(pa + 1, caps.p_max)
             ph = min(ph + 1, caps.p_max)
         return (a, D, xa, pa, h, xh, ph)
     if is_attacker:
@@ -77,9 +83,12 @@ def event(s: State, is_attacker: bool, is_block: bool, caps: Caps) -> State:
     return _collapse((a, D, xa, pa, h, xh, ph))
 
 
-def do_publish(s: State):
+def do_publish(s: State, honest_shares: bool = False):
+    """Publish the attacker's blocks (no honest block since the fork). With honest_shares the
+    honest pending shares, mined on the old fork point, fit no child of the published block
+    and drop; Model B as built keeps them."""
     a, D, xa, pa, h, xh, ph = s
-    return (0, 0, 0, pa, 0, 0, ph), a, 0
+    return (0, 0, 0, pa, 0, 0, 0 if honest_shares else ph), a, 0
 
 
 def do_reveal(s: State, own_pending: bool = False):
@@ -96,9 +105,11 @@ def do_reveal(s: State, own_pending: bool = False):
     return (0, 0, 0, pa - k, 0, 0, 0), a, 0
 
 
-def do_give_up(s: State):
+def do_give_up(s: State, honest_shares: bool = False):
+    """Adopt the honest chain. With honest_shares the attacker also adopts the honest pending
+    shares on its tip (they are public), so the next race starts level."""
     a, D, xa, pa, h, xh, ph = s
-    return (0, 0, 0, 0, 0, 0, ph), 0, h
+    return (0, 0, 0, ph if honest_shares else 0, 0, 0, ph), 0, h
 
 
 def at_cap(s: State, caps: Caps) -> bool:

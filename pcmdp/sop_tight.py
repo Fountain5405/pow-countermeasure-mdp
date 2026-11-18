@@ -16,6 +16,21 @@ k = max(0, pa - x + 1) pending shares it needs; published shares are public
 (any miner may include them), so carrying them as a private lead would count
 them twice. Only pa' = min(pa, x - 1) stay private. "ignore" publishes none.
 
+Honest shares on the fork point (2026-11-18, `honest_shares=True`): until
+either side has a block since the fork, an honest share fits the attacker's
+rival first block as well as the honest one, in its slot, so it counts for
+the attacker too when the attacker lacks that slot (ph >= pa: pa + 1 with
+ph + 1, x unchanged). After giving up, the attacker adopts the honest tip and
+its pending shares (x = 0, pa = ph). After publishing, the honest shares on
+the old fork point fit no child of the published block and drop (ph = 0).
+This is MRL #146's slot rule as
+tevador's appendix simulator plays it (UNIQUE_SHARES, `adopt_shares`), and
+monerosim's race model's `hunt --honest-shares` (campaign 8, section 6.1).
+The default (False) is race-model Model B as built: our daemon attacker,
+which sees no gossiped shares. `publish_all_on_reveal` publishes every
+pending share at a reveal (x = 0, pa = ph = pa), as tevador's attacker does;
+it is there to check this model against his simulator.
+
 A reveal is accepted iff x - pa > 0 (sop_mdp's D > ph). The only departures
 from the exact game left:
 - the window (no reveal before 32 objects past a branch's first block) is
@@ -56,6 +71,10 @@ class TightSoP:
     own_pending: str = "ignore"   # "ignore": accept iff x - pa > 0; "count": x > 0
     # True: the pre-2026-11-17 reveal that carries all pa (kept to reproduce old values)
     legacy_carry: bool = False
+    # True: the attacker uses the honest shares on the fork point and restarts level (MRL #146)
+    honest_shares: bool = False
+    # True: a reveal publishes every pending share (tevador's attacker; for the cross-check)
+    publish_all_on_reveal: bool = False
 
     def __post_init__(self):
         if self.own_pending not in ("ignore", "count"):
@@ -97,11 +116,17 @@ class TightSoP:
         h, a1, x, pa, ph = self.decode(np.arange(n))
         clamp = lambda v: np.clip(v, self.x_min, self.x_max)
         al, pb = self.alpha, 1.0 / self.w
+        # an honest share also fits the attacker's first block (fork point, its slot free). With
+        # no block since the fork D = 0, so x = pa - ph and "slot free" (ph >= pa) is x <= 0; reading
+        # it off x avoids the caps (with pa and ph both capped at 24 every honest share looked free,
+        # and the optimal policy exploited it: 0.096 against 0.077 in the exact game, 2026-11-18)
+        shared = (self.honest_shares & (h == 0) & (a1 == 0) & (x <= 0)).astype(int)
         # hold: four events per object
         nxt = [
             (self.index(h, a1, clamp(x + 1), np.minimum(pa + 1, self.p_max), ph), al * (1 - pb)),   # attacker share
             (self.index(h, 1, clamp(x + 1), 0, ph), al * pb),                                        # attacker block
-            (self.index(h, a1, clamp(x - 1), pa, np.minimum(ph + 1, self.q_max)), (1 - al) * (1 - pb)),  # honest share
+            (self.index(h, a1, clamp(x - 1 + shared), np.minimum(pa + shared, self.p_max),
+                        np.minimum(ph + 1, self.q_max)), (1 - al) * (1 - pb)),                       # honest share
             (self.index(np.minimum(h + 1, self.min_depth), a1, clamp(x - 1), pa, 0), (1 - al) * pb),  # honest block
         ]
         rows = np.concatenate([np.arange(n)] * 4)
@@ -117,8 +142,16 @@ class TightSoP:
         if self.own_pending == "count" and not self.legacy_carry:
             pa_r = np.clip(np.minimum(pa, x - 1), 0, None)
         reveal_to = self.index(zeros, zeros, clamp(pa_r), pa_r, zeros)
+        if self.publish_all_on_reveal:   # everything public: both tips hold the same pa shares
+            reveal_to = self.index(zeros, zeros, zeros, pa, np.minimum(pa, self.q_max))
         publish_to = self.index(zeros, zeros, clamp(pa - ph), pa, ph)
-        give_up_to = self.index(zeros, zeros, clamp(-ph), zeros, ph)
+        if self.honest_shares:
+            # honest shares on the old fork point fit no child of the published block: they drop
+            publish_to = self.index(zeros, zeros, clamp(pa), pa, zeros)
+            # adopt the honest tip and its pending shares: level
+            give_up_to = self.index(zeros, zeros, zeros, np.minimum(ph, self.p_max), ph)
+        else:
+            give_up_to = self.index(zeros, zeros, clamp(-ph), zeros, ph)
         one = lambda to: csr_matrix((np.ones(n), (np.arange(n), to)), shape=(n, n))
         P = [P_hold, one(reveal_to), one(give_up_to), one(publish_to)]
         legal = np.zeros((4, n), bool)
@@ -148,7 +181,11 @@ def profile(P, r, d, policy, start):
 
     pi(start) is pinned to 1 and the other balance equations are solved by
     sparse LU (no dense normalisation row: that one filled in past 13 GB at
-    1.2 M states, 2026-11-16), then pi is normalised.
+    1.2 M states, 2026-11-16), then pi is normalised. It factors I - P (start
+    row and column dropped), the orientation howard.py factors, and solves the
+    transposed system: factoring P^T - I filled SuperLU past its memory at 5 M
+    states ("Can't expand MemType", x +-64 / p 64, 2026-11-18), as
+    reorgs.stationary_distribution found on Fruitchains.
     """
     from scipy.sparse import diags, identity
     from scipy.sparse.csgraph import breadth_first_order
@@ -162,10 +199,10 @@ def profile(P, r, d, policy, start):
     m = len(reach)
     s0 = int(np.searchsorted(reach, start))
     keep = np.r_[0:s0, s0 + 1:m]
-    # pi_j = sum_i pi_i P_ij for j != start, with pi_start = 1
-    A = (identity(m, format="csr") - sub).T.tocsr()[keep][:, keep]
-    b = sub[s0, :].toarray().ravel()[keep]
-    rest = splu(A.tocsc()).solve(b)
+    # sum_i pi_i B_ij = 0 for j != start, B = I - P, pi_start = 1:
+    # B[keep, keep]^T pi_keep = -B[start, keep]^T
+    B = (identity(m, format="csr") - sub).tocsr()
+    rest = splu(B[keep][:, keep].tocsc()).solve(-B[s0][:, keep].toarray().ravel(), trans="T")
     pi = np.zeros(m)
     pi[s0] = 1.0
     pi[keep] = rest
@@ -193,7 +230,7 @@ def exact_rate(model: TightSoP, policy, objects: int, seed: int = 1, window: boo
     deep = 0
     for e in events:
         is_att, is_blk = M.EVENTS[e]
-        s = M.event(s, is_att, is_blk, caps)
+        s = M.event(s, is_att, is_blk, caps, honest_shares=model.honest_shares)
         a, D, xa, pa, h, xh, ph = s
         if a == 0 and h == 0:
             continue
@@ -205,11 +242,14 @@ def exact_rate(model: TightSoP, policy, objects: int, seed: int = 1, window: boo
             act = HOLD
         if act == REVEAL:
             deep += h >= model.min_depth
-            s = M.do_reveal(s, model.own_pending == "count")[0]
+            if model.publish_all_on_reveal:
+                s = (0, 0, 0, pa, 0, 0, pa)
+            else:
+                s = M.do_reveal(s, model.own_pending == "count")[0]
         elif act == PUBLISH:
-            s = M.do_publish(s)[0]
+            s = M.do_publish(s, model.honest_shares)[0]
         elif act == GIVE_UP:
-            s = M.do_give_up(s)[0]
+            s = M.do_give_up(s, model.honest_shares)[0]
     block_times = objects / model.w
     return {"objects": objects, "deep": deep, "rate": deep / block_times}
 
@@ -229,22 +269,32 @@ def main(argv=None) -> int:
     p.add_argument("--p-max", type=int, default=32)
     p.add_argument("--q-max", type=int, default=32)
     p.add_argument("--own-pending", choices=["ignore", "count"], default="ignore")
+    p.add_argument("--honest-shares", action="store_true",
+                   help="the attacker uses the honest shares on the fork point and restarts level (MRL #146)")
     p.add_argument("--save-policy")
+    p.add_argument("--load-policy", help="skip the solve: read the policy from this .npz (profile and exact checks)")
     p.add_argument("--no-profile", action="store_true", help="skip the stationary-distribution check of g")
     p.add_argument("--exact-objects", type=int, default=0, help="also run the policy in the exact game")
     p.add_argument("--seed", type=int, default=1)
     args = p.parse_args(argv)
 
     m = TightSoP(args.alpha, min_depth=args.min_depth, x_min=args.x_min, x_max=args.x_max,
-                 p_max=args.p_max, q_max=args.q_max, own_pending=args.own_pending)
+                 p_max=args.p_max, q_max=args.q_max, own_pending=args.own_pending,
+                 honest_shares=args.honest_shares)
     P, r, d, legal = m.tables()
     out = {"model": "sop_tight", **vars(args), "states": m.n, "build_s": round(m.build_s, 1)}
     t0 = time.time()
     import contextlib
-    with contextlib.redirect_stdout(sys.stderr):   # the iteration log; stdout carries the JSON
-        policy, g, it = solve_tables(P, r, d, legal, m.start, cur=m.initial_policy(), verbose=True)
-    out.update({"g": g, "iterations": it, "solve_s": round(time.time() - t0, 1)})
-    if args.save_policy:
+    if args.load_policy:
+        policy = np.load(args.load_policy)["policy"].astype(int)
+        if len(policy) != m.n or not legal[policy, np.arange(m.n)].all():
+            raise ValueError("the saved policy does not fit this model")
+        out["loaded_policy"] = args.load_policy
+    else:
+        with contextlib.redirect_stdout(sys.stderr):   # the iteration log; stdout carries the JSON
+            policy, g, it = solve_tables(P, r, d, legal, m.start, cur=m.initial_policy(), verbose=True)
+        out.update({"g": g, "iterations": it, "solve_s": round(time.time() - t0, 1)})
+    if args.save_policy and not args.load_policy:
         np.savez_compressed(args.save_policy, policy=policy.astype(np.int8), args=json.dumps(vars(args)))
     if not args.no_profile:
         t0 = time.time()
