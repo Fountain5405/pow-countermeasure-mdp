@@ -9,8 +9,10 @@ soptight_a<alpha>_dc[_count|_count64]. The jsonl has one record per job: its
 scalars, the profile scalars and the reorg-depth rates to 6 significant
 figures. The markdown has the cross-protocol tables:
 
-- revenue: the attacker's share of main-chain blocks under the
-  revenue-optimal policy, and the first grid alpha where it beats honest;
+- revenue: the attacker's share of block rewards under the revenue-optimal
+  policy (the references' rou = Rs / (Rs + Rh): its share of main-chain
+  blocks, except under RS, PRS and Fruitchains, which also pay orphaned
+  work), and the first grid alpha where it beats honest;
 - disruption: reorgs of 11+ blocks per block interval under the policy that
   maximises them, with the mean time between them at Monero's 120 s blocks,
   and the attacker's share while doing so;
@@ -207,7 +209,8 @@ def build(recs, ss=None):
     # Disruption
     md.append("## Disruption: reorgs of 11+ blocks per block interval, disruption-optimal policy\n")
     md.append("Each cell: rate (mean time between them at 120 s blocks; the attacker's "
-              "share of main-chain blocks while doing so).\n")
+              "share of block rewards while doing so: of main-chain blocks, except under "
+              "RS, PRS and Fruitchains, which also pay orphaned work).\n")
 
     def dis_cell(r):
         if r is None:

@@ -167,8 +167,8 @@ def _share_transitions(model: TaggedModel, state, action, transitions: TaggedTra
     Models built with normalization "time" and the disruption objective set
     `time_rates`, which replaces the difficulty by elapsed block intervals in
     every transition, whatever the live objective. The profile divides the
-    reorg counts by that, but the revenue must stay a share of main-chain
-    blocks, so it reads the same transitions once more with the flag off.
+    reorg counts by that, but the revenue must stay a share of Rs + Rh, so
+    it reads the same transitions once more with the flag off.
     """
     if not getattr(model, "time_rates", False):
         return transitions
@@ -183,8 +183,10 @@ def reorg_profile(model: TaggedModel, policy, max_report_depth: Optional[int] = 
                   method: str = "direct") -> dict:
     """Revenue and reorg rates under `policy`.
 
-    The revenue is the attacker's share of main-chain blocks, whatever the
-    model's objective and normalization. Reorg rates are per unit of the
+    The revenue is the attacker's share of the revenue denominator Rs + Rh,
+    whatever the model's objective and normalization: of main-chain blocks,
+    or of block rewards where the protocol also pays orphaned work (RS, PRS,
+    Fruitchains). Reorg rates are per unit of the
     model's difficulty: per main-chain block, or per block interval for a
     model with `time_rates` (normalization "time", disruption objective).
     Depth histograms are keyed by kind, then depth.
@@ -193,7 +195,7 @@ def reorg_profile(model: TaggedModel, policy, max_report_depth: Optional[int] = 
     revenue_model_objective = model.objective
     model.objective = "revenue"  # tags and revenue rewards, whatever was solved
     try:
-        blocks = 0.0   # main-chain blocks: the revenue's denominator
+        blocks = 0.0   # Rs + Rh, the revenue's denominator (main-chain blocks, or rewards)
         units = 0.0    # the rates' denominator (blocks, or block intervals)
         attacker = 0.0
         rates: Dict[str, Dict[int, float]] = defaultdict(lambda: defaultdict(float))
@@ -228,7 +230,7 @@ def simulate_profile(model: TaggedModel, policy, steps: int, seed: int = 1,
     cache: Dict[int, tuple] = {}
     try:
         state = model.initial_state
-        blocks = 0.0   # main-chain blocks: the revenue's denominator
+        blocks = 0.0   # Rs + Rh, the revenue's denominator (main-chain blocks, or rewards)
         units = 0.0    # the rates' denominator (blocks, or block intervals)
         attacker = 0.0
         counts: Dict[str, Dict[int, float]] = defaultdict(lambda: defaultdict(float))
